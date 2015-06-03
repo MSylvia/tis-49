@@ -40,7 +40,16 @@ var T21 = {
 
   MOV: function () {
     this._checkArguments(arguments, 3);
+    var src = this._checkSrc(arguments);
+    var dest = this._checkDest(arguments);
 
+    if (this._ports[dest] === null || src === null) {
+      this._regs.PC--;
+    } else if (this._ports[dest] !== undefined) {
+      this._ports[dest] = src;
+    } else {
+      this._regs[dest] = src;
+    }
   },
 
   SWP: function () {
@@ -62,11 +71,7 @@ var T21 = {
     var src = this._checkSrc(arguments);
     if (src === null) this._regs.PC--;
     else {
-      if (this._regs[src] !== undefined) this._regs.ACC += this._regs[src];
-      else if (this._ports[src] !== undefined) this._regs.ACC += this._ports[src];
-      else {
-        this._regs.ACC += +src;
-      }
+      this._regs.ACC += src;
     }
   },
 
@@ -75,11 +80,7 @@ var T21 = {
     var src = this._checkSrc(arguments);
     if (src === null) this._regs.PC--;
     else {
-      if (this._regs[src] !== undefined) this._regs.ACC -= this._regs[src];
-      else if (this._ports[src] !== undefined) this._regs.ACC -= this._ports[src];
-      else {
-        this._regs.ACC -= +src;
-      }
+      this._regs.ACC -= src
     }
   },
 
@@ -143,11 +144,22 @@ var T21 = {
 
   _checkSrc: function (arguments) {
     var src = arguments[1];
-    if (isNaN(src)
-        && this._ports[src] === undefined
-        && this._regs[src] === undefined
-        && src !== 'BAK') throw this._regs.PC;
-    return src;
+
+    if (!isNaN(src)) return +src;
+    if (this._ports[src] !== undefined) return this._ports[src];
+    if (this._regs[src] !== undefined && src !== 'BAK') return this._ports[src];
+
+    throw this._regs.PC;
+  },
+
+  _checkDest: function (arguments) {
+    var dest = arguments[2];
+
+    if (dest === 'BAK'
+        || (this._ports[dest] === undefined
+            && this._regs[dest] === undefined)) throw this._regs.PC;
+
+    return dest;
   },
 
   _checkLabel: function (arguments) {
