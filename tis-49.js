@@ -13,7 +13,7 @@ var T21 = {
       var line = program[i].trim().toUpperCase();
 
       if (line[line.length - 1] === ':') { // entire line is label
-        this._labels[line.substr(0, line.length - 1)] = i + 1;
+        this._labels[line.substr(0, line.length - 1)] = i;
       } else if (false) { // TODO: prefixed with label
 
       } else {
@@ -75,27 +75,45 @@ var T21 = {
 
   JMP: function () {
     this._checkArguments(arguments, 2);
+    var label = this._checkLabel(arguments);
 
+    this._regs.PC = this._labels[label];
   },
 
   JEZ: function () {
     this._checkArguments(arguments, 2);
+    var label = this._checkLabel(arguments);
 
+    if (this._regs.ACC === 0) {
+      this._regs.PC = this._labels[label];
+    }
   },
 
   JNZ: function () {
     this._checkArguments(arguments, 2);
+    var label = this._checkLabel(arguments);
 
+    if (this._regs.ACC !== 0) {
+      this._regs.PC = this._labels[label];
+    }
   },
 
   JGZ: function () {
     this._checkArguments(arguments, 2);
+    var label = this._checkLabel(arguments);
 
+    if (this._regs.ACC > 0) {
+      this._regs.PC = this._labels[label];
+    }
   },
 
   JLZ: function () {
     this._checkArguments(arguments, 2);
+    var label = this._checkLabel(arguments);
 
+    if (this._regs.ACC < 0) {
+      this._regs.PC = this._labels[label];
+    }
   },
 
   JRO: function () {
@@ -105,6 +123,12 @@ var T21 = {
 
   _checkArguments: function (arguments, count) {
     if (arguments.length != count) throw this._regs.PC;
+  },
+
+  _checkLabel: function (arguments) {
+    var label = arguments[1];
+    if (this._labels[label] === undefined) throw this._regs.PC;
+    return label;
   },
 
   _resetProgram: function () {
