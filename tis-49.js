@@ -59,12 +59,28 @@ var T21 = {
 
   ADD: function () {
     this._checkArguments(arguments, 2);
-
+    var src = this._checkSrc(arguments);
+    if (src === null) this._regs.PC--;
+    else {
+      if (this._regs[src] !== undefined) this._regs.ACC += this._regs[src];
+      else if (this._ports[src] !== undefined) this._regs.ACC += this._ports[src];
+      else {
+        this._regs.ACC += +src;
+      }
+    }
   },
 
   SUB: function () {
     this._checkArguments(arguments, 2);
-
+    var src = this._checkSrc(arguments);
+    if (src === null) this._regs.PC--;
+    else {
+      if (this._regs[src] !== undefined) this._regs.ACC -= this._regs[src];
+      else if (this._ports[src] !== undefined) this._regs.ACC -= this._ports[src];
+      else {
+        this._regs.ACC -= +src;
+      }
+    }
   },
 
   NEG: function () {
@@ -123,6 +139,15 @@ var T21 = {
 
   _checkArguments: function (arguments, count) {
     if (arguments.length != count) throw this._regs.PC;
+  },
+
+  _checkSrc: function (arguments) {
+    var src = arguments[1];
+    if (isNaN(src)
+        && this._ports[src] === undefined
+        && this._regs[src] === undefined
+        && src !== 'BAK') throw this._regs.PC;
+    return src;
   },
 
   _checkLabel: function (arguments) {
