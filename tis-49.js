@@ -1,90 +1,114 @@
 var T21 = {
-  _r: { ACC: 0, BAK: 0, NIL: 0, PC: 0 },
-  _p: { LEFT: null, RIGHT: null, UP: null, DOWN: null, LAST: null },
+  _regs: { ACC: 0, BAK: 0, NIL: 0, PC: 0 },
+  _ports: { LEFT: null, RIGHT: null, UP: null, DOWN: null, LAST: null },
+  _labels: {},
+  _program: undefined,
 
-  execute: function (program) {
-    T21._r.PC = 0;
-    // while (true) {
-      var line = program[T21._r.PC++];
-      line = line.split(" "); // TODO: more generous with formatting (extra whitespace)
-      T21[line[0]].apply(this, line);
+  load: function (program) {
+    this._resetProgram();
+    if (!program) return;
 
-      // if (T21._r.PC >= program.length) T21._r.PC = 0;
-    // }
+    this._program = [];
+    for (var i = 0; i < program.length; ++i) {
+      var line = program[i].trim().toUpperCase();
+
+      if (line[line.length - 1] === ':') { // entire line is label
+        this._labels[line.substr(0, line.length - 1)] = i + 1;
+      } else if (false) { // TODO: prefixed with label
+
+      } else {
+        this._program.push(line);
+      }
+    }
+  },
+
+  step: function () {
+    if (!this._program || this._program.length == 0) return;
+
+    var line = this._program[this._regs.PC++];
+    line = line.split(" "); // TODO: more generous with formatting (extra whitespace)
+    this[line[0]].apply(this, line);
+
+    if (this._regs.PC >= this._program.length) this._regs.PC = 0;
   },
 
   NOP: function () {
-    _checkArguments(arguments, 1);
+    this._checkArguments(arguments, 1);
 
-    T21.ADD(T21._r.NIL);
+    this.ADD(this._regs.NIL);
   },
 
   MOV: function () {
-    _checkArguments(arguments, 3);
+    this._checkArguments(arguments, 3);
 
   },
 
   SWP: function () {
-    _checkArguments(arguments, 1);
+    this._checkArguments(arguments, 1);
 
-    var temp = T21._r.BAK;
-    T21._r.BAK = T21._r.ACC;
-    T21._r.ACC = temp;
+    var temp = this._regs.BAK;
+    this._regs.BAK = this._regs.ACC;
+    this._regs.ACC = temp;
   },
 
   SAV: function () {
-    _checkArguments(arguments, 1);
+    this._checkArguments(arguments, 1);
 
-    T21._r.BAK = T21._r.ACC;
+    this._regs.BAK = this._regs.ACC;
   },
 
   ADD: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   SUB: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   NEG: function () {
-    _checkArguments(arguments, 1);
+    this._checkArguments(arguments, 1);
 
-    T21._r.ACC *= -1;
+    this._regs.ACC *= -1;
   },
 
   JMP: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   JEZ: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   JNZ: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   JGZ: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   JLZ: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   JRO: function () {
-    _checkArguments(arguments, 2);
+    this._checkArguments(arguments, 2);
 
   },
 
   _checkArguments: function (arguments, count) {
-    if (arguments.length != count) throw T21._r.PC;
+    if (arguments.length != count) throw this._regs.PC;
+  },
+
+  _resetProgram: function () {
+    this._program = undefined;
+    this._labels = {};
   }
 };
