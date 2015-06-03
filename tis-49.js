@@ -1,5 +1,5 @@
 var T21 = {
-  _regs: { ACC: 0, BAK: 0, NIL: 0, PC: 0 },
+  _regs: resetRegs(),
   _ports: { LEFT: null, RIGHT: null, UP: null, DOWN: null, LAST: null },
   _labels: {},
   _program: undefined,
@@ -171,5 +171,12 @@ var T21 = {
   _resetProgram: function () {
     this._program = undefined;
     this._labels = {};
+    this._resetRegs();
+
+    // TODO: figure out how to reset ports
+  },
+
+  _resetRegs: function () {
+    return { ACC: 0, BAK: 0, NIL: 0, PC: 0 };
   }
 };
